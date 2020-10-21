@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/lvhuat/textformatter"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,12 +51,6 @@ type Record struct {
 	Spot    string
 	Futures struct {
 		Future string
-
-		Max     float64
-		MaxTime float64
-
-		Min     float64
-		MinTime float64
 	}
 }
 
@@ -106,10 +101,10 @@ func main() {
 			for _, future := range futures {
 				open := (future.Bid - spot.Ask) / spot.Ask
 				close := (future.Ask - spot.Bid) / spot.Bid
-				fmt.Fprintln(buffer, future.Name, "open", open, "close", close)
+				fmt.Fprintln(buffer, future.Name, decimal.NewFromFloat(open*100).StringFixed(4)+"%", decimal.NewFromFloat(close*100).Abs().StringFixed(4)+"%")
 			}
 		}
-		fmt.Printf(string(buffer.Bytes()))
+		fmt.Print(string(buffer.Bytes()))
 
 		now := time.Now()
 		if now.Hour() != lastReport.Hour() {
